@@ -4,9 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="343602fe-e1a6-41a7-8e71-b4edba483083" name="更改" comment="Initial commit or merge or rebase remote changes">
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-    </list>
+    <list default="true" id="343602fe-e1a6-41a7-8e71-b4edba483083" name="更改" comment="Initial commit or merge or rebase remote changes" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -93,7 +91,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1727196415431</updated>
-      <workItem from="1727196417329" duration="3314000" />
+      <workItem from="1727196417329" duration="3623000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit or merge or rebase remote changes">
       <option name="closed" value="true" />
