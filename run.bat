@@ -20,7 +20,7 @@ del /F /Q .DS_Store
 git add .
 
 :: 提交暂存区的更改并添加提交信息
-git commit -m "Initial commit or merge or rebase remote changes"
+git commit -m "update infer.ipynb to simplify"
 
 :: 将本地的 main 分支变基到远程 main 分支的最新提交
 git branch -M main
