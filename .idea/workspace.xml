@@ -72,7 +72,7 @@
       <recent name="D:\pythonProject\Colorization" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.inference">
+  <component name="RunManager" selected="Batch.run">
     <configuration name="run" type="BatchConfigurationType" factoryName="Batch" temporary="true">
       <module name="Colorization" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -130,8 +130,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.inference" />
         <item itemvalue="Batch.run" />
+        <item itemvalue="Python.inference" />
       </list>
     </recent_temporary>
   </component>
