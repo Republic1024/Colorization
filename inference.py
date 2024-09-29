@@ -157,4 +157,4 @@ output_color = output_color.squeeze(0).cpu().numpy()  # 移除批次维度并移
 output_img = np.transpose(output_color, (1, 2, 0))  # 调整维度顺序为 [H, W, C]
 
 plt.imshow(output_img)
-plt.imsave('c2.png', output_img)
+plt.imsave('./output/0_colorized.png', output_img)

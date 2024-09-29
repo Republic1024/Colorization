@@ -5,9 +5,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="343602fe-e1a6-41a7-8e71-b4edba483083" name="更改" comment="Initial commit or merge or rebase remote changes">
-      <change afterPath="$PROJECT_DIR$/c2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/colorization_unet.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/inference.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Inference.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/Inference.ipynb" afterDir="false" />
     </list>
@@ -66,7 +63,7 @@
       <recent name="D:\pythonProject\Colorization" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.inference">
+  <component name="RunManager" selected="Batch.run">
     <configuration name="run" type="BatchConfigurationType" factoryName="Batch" temporary="true">
       <module name="Colorization" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -124,8 +121,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.inference" />
         <item itemvalue="Batch.run" />
+        <item itemvalue="Python.inference" />
       </list>
     </recent_temporary>
   </component>
@@ -147,7 +144,7 @@
       <workItem from="1727196417329" duration="3663000" />
       <workItem from="1727605788478" duration="1239000" />
       <workItem from="1727640482493" duration="336000" />
-      <workItem from="1727640841572" duration="386000" />
+      <workItem from="1727640841572" duration="781000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit or merge or rebase remote changes">
       <option name="closed" value="true" />
