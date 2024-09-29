@@ -5,16 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="343602fe-e1a6-41a7-8e71-b4edba483083" name="更改" comment="Initial commit or merge or rebase remote changes">
-      <change afterPath="$PROJECT_DIR$/.idea/Colorization.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/infer3.ipynb" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/infer4.ipynb" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/infer5.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Inference.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/Inference.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/colorization_unet.py" beforeDir="false" afterPath="$PROJECT_DIR$/colorization_unet.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/inference.py" beforeDir="false" afterPath="$PROJECT_DIR$/inference.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/output/0_colorized.png" beforeDir="false" afterPath="$PROJECT_DIR$/output/0_colorized.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/infer.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/infer.ipynb" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -157,6 +149,7 @@
       <workItem from="1727641635513" duration="1634000" />
       <workItem from="1727643600776" duration="845000" />
       <workItem from="1727644955018" duration="816000" />
+      <workItem from="1727645782791" duration="637000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit or merge or rebase remote changes">
       <option name="closed" value="true" />
