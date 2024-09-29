@@ -5,7 +5,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="343602fe-e1a6-41a7-8e71-b4edba483083" name="更改" comment="Initial commit or merge or rebase remote changes">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/colorization.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/colorization.ipynb" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -37,6 +36,7 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Batch.run.executor": "Run",
     "Python.main.executor": "Run",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
@@ -111,7 +111,7 @@
       <option name="presentableId" value="Default" />
       <updated>1727196415431</updated>
       <workItem from="1727196417329" duration="3663000" />
-      <workItem from="1727605788478" duration="83000" />
+      <workItem from="1727605788478" duration="481000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit or merge or rebase remote changes">
       <option name="closed" value="true" />
