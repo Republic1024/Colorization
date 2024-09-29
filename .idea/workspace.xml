@@ -56,7 +56,16 @@
       <recent name="D:\pythonProject\Colorization" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Batch.run">
+    <configuration name="run" type="BatchConfigurationType" factoryName="Batch" temporary="true">
+      <module name="Colorization" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="WORKING_DIRECTORY" value="D:\pythonProject\Colorization" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SCRIPT_NAME" value="run.bat" />
+      <option name="PARAMETERS" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="main" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="Colorization" />
       <option name="ENV_FILES" value="" />
@@ -80,6 +89,11 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Batch.run" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>

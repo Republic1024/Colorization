@@ -1,63 +1,351 @@
-# Colorization 
+# Colorization: 灰度图像上色的 U-Net 模型
 
 ## 项目简介
 
-该项目的目标是对灰度图像进行彩色化。通过构建并训练一个卷积神经网络（U-Net 变种），该模型能够学习从灰度图像生成彩色图像。项目使用了灰度和彩色的图像数据集，并通过各种 Git 命令进行版本控制和同步，允许多人协作开发或定期更新代码。
+本项目实现了一个基于 U-Net 结构的深度学习模型，用于将灰度图像转换为彩色图像。通过训练该模型，可以自动为灰度图像添加颜色，实现图像的自动上色功能。该项目在图像处理、计算机视觉等领域具有广泛的应用前景，如老照片修复、黑白电影上色等。
 
-## 项目目录结构
+## 环境要求
 
+- **Python 3.x**
+- **PyTorch**
+- **torchvision**
+- **PIL（Python Imaging Library）**
+- **matplotlib**
+- **numpy**
+
+### 安装依赖
+
+```bash
+pip install torch torchvision pillow matplotlib numpy
 ```
-D:.
-├─.idea
-├─checkpoints
-├─landscape
-│  ├─color
-│  └─gray
-└─record
+
+## 代码详解
+
+### 1. 模型构建
+
+#### 1.1 卷积块（ConvBlock）
+
+```python
+class ConvBlock(nn.Module):
+    """卷积块：Conv2d -> BatchNorm2d -> ReLU"""
+    def __init__(self, in_channels, out_channels, stride=2):
+        super(ConvBlock, self).__init__()
+        self.conv = nn.Conv2d(
+            in_channels, out_channels,
+            kernel_size=3, stride=stride,
+            padding=1
+        )
+        self.bn = nn.BatchNorm2d(out_channels)
+        self.relu = nn.ReLU(inplace=True)
+    def forward(self, x):
+        x = self.conv(x)
+        x = self.bn(x)
+        x = self.relu(x)
+        return x
 ```
 
-### 目录说明
+- **功能**：实现基本的卷积操作，包括卷积、批归一化和 ReLU 激活函数。
+- **输入**：
+    - `in_channels`：输入通道数。
+    - `out_channels`：输出通道数。
+    - `stride`：步长，默认为 2。
+- **输出**：经过卷积块处理后的特征图。
 
-- **`.idea/`**: 由 JetBrains IDE（如 PyCharm 或 CLion）自动生成，用于存储项目的配置文件。可以忽略该目录，不需要纳入版本控制。
+#### 1.2 上采样卷积块（UpConvBlock）
 
-- **`checkpoints/`**: 该文件夹存放训练过程中的模型检查点。每次训练过程中保存的中间模型（如 `.pth` 文件）都会存储在这里，以便在训练过程中随时恢复或进一步调优。
+```python
+class UpConvBlock(nn.Module):
+    """上采样块：ConvTranspose2d -> BatchNorm2d -> ReLU"""
+    def __init__(self, in_channels, out_channels, stride=2):
+        super(UpConvBlock, self).__init__()
+        self.upconv = nn.ConvTranspose2d(
+            in_channels, out_channels,
+            kernel_size=3, stride=stride,
+            padding=1, output_padding=1
+        )
+        self.bn = nn.BatchNorm2d(out_channels)
+        self.relu = nn.ReLU(inplace=True)
+    def forward(self, x):
+        x = self.upconv(x)
+        x = self.bn(x)
+        x = self.relu(x)
+        return x
+```
 
-- **`landscape/`**:
-    - **`color/`**: 包含彩色图像，用于监督学习模型的目标输出。这些图像是用于训练模型的目标图像，模型通过学习从灰度图像生成这些彩色图像。
-    - **`gray/`**: 包含灰度图像，是模型的输入图像。模型从这些灰度图像中学习特征，并尝试预测与之对应的彩色图像。
+- **功能**：实现上采样操作，用于扩大特征图的尺寸。
+- **输入**：
+    - `in_channels`：输入通道数。
+    - `out_channels`：输出通道数。
+    - `stride`：步长，默认为 2。
+- **输出**：上采样后的特征图。
 
-- **`record/`**: 该文件夹用于保存训练过程中生成的对比图像。每次训练结束后，模型会生成彩色化图像，保存这些输出图像以用于观察和比较不同训练阶段的结果。
+#### 1.3 深度可分离卷积（SeparableConv2d）
 
----
+```python
+class SeparableConv2d(nn.Module):
+    """深度可分离卷积：Depthwise Conv2d + Pointwise Conv2d"""
+    def __init__(self, in_channels, out_channels):
+        super(SeparableConv2d, self).__init__()
+        self.depthwise = nn.Conv2d(
+            in_channels, in_channels,
+            kernel_size=3, padding=1,
+            groups=in_channels, bias=False
+        )
+        self.pointwise = nn.Conv2d(
+            in_channels, out_channels,
+            kernel_size=1, bias=False
+        )
+    def forward(self, x):
+        x = self.depthwise(x)
+        x = self.pointwise(x)
+        return x
+```
 
-## 项目做了什么
+- **功能**：实现深度可分离卷积，减少模型参数量，加快计算速度。
+- **输入**：
+    - `in_channels`：输入通道数。
+    - `out_channels`：输出通道数。
+- **输出**：经过深度可分离卷积处理后的特征图。
 
-1. **数据准备**: 项目从 `landscape` 目录中的灰度图像和彩色图像开始，模型从灰度图像学习彩色化的方式。灰度图像位于 `landscape/gray` 中，彩色图像位于 `landscape/color` 中。
+#### 1.4 U-Net 模型（ColorizationUNet）
 
-2. **神经网络构建**: 构建了一个用于图像上色的卷积神经网络，基于 U-Net 结构，适用于需要高分辨率输出的任务。该模型包含编码器-解码器结构，能够捕获图像中的局部和全局特征。
+```python
+class ColorizationUNet(nn.Module):
+    """用于灰度图像上色的 U-Net 模型"""
+    def __init__(self):
+        super(ColorizationUNet, self).__init__()
+        # 编码器
+        self.enc1 = ConvBlock(1, 128)         # 输入为 1 通道灰度图像
+        self.enc2 = ConvBlock(128, 128)
+        self.enc3 = ConvBlock(128, 256)
+        self.enc4 = ConvBlock(256, 512)
+        self.enc5 = ConvBlock(512, 512)
+        # 解码器
+        self.dec1 = UpConvBlock(512, 512)
+        self.dec2 = UpConvBlock(512 + 512, 256)  # 跳跃连接，通道数加倍
+        self.dec3 = UpConvBlock(256 + 256, 128)
+        self.dec4 = UpConvBlock(128 + 128, 128)
+        self.dec5 = UpConvBlock(128 + 128, 3)    # 输出 3 通道彩色图像
+        # 最后的深度可分离卷积层
+        self.final_conv = SeparableConv2d(3 + 1, 3)
+        # 激活函数
+        self.sigmoid = nn.Sigmoid()
+    def forward(self, x):
+        # 编码器路径
+        enc1 = self.enc1(x)    # (batch_size, 128, 80, 80)
+        enc2 = self.enc2(enc1) # (batch_size, 128, 40, 40)
+        enc3 = self.enc3(enc2) # (batch_size, 256, 20, 20)
+        enc4 = self.enc4(enc3) # (batch_size, 512, 10, 10)
+        enc5 = self.enc5(enc4) # (batch_size, 512, 5, 5)
+        # 解码器路径
+        dec1 = self.dec1(enc5)                      # (batch_size, 512, 10, 10)
+        dec1 = torch.cat((dec1, enc4), dim=1)       # 跳跃连接
+        dec2 = self.dec2(dec1)                      # (batch_size, 256, 20, 20)
+        dec2 = torch.cat((dec2, enc3), dim=1)
+        dec3 = self.dec3(dec2)                      # (batch_size, 128, 40, 40)
+        dec3 = torch.cat((dec3, enc2), dim=1)
+        dec4 = self.dec4(dec3)                      # (batch_size, 128, 80, 80)
+        dec4 = torch.cat((dec4, enc1), dim=1)
+        dec5 = self.dec5(dec4)                      # (batch_size, 3, 160, 160)
+        # 拼接输入和解码器输出
+        dec5 = torch.cat((dec5, x), dim=1)          # (batch_size, 4, 160, 160)
+        # 最后的卷积层
+        out = self.final_conv(dec5)                 # (batch_size, 3, 160, 160)
+        out = self.sigmoid(out)                     # 将输出限制在 [0, 1]
+        return out
+```
 
-3. **训练模型**: 使用灰度图像作为输入，彩色图像作为标签进行监督学习。每轮训练过程中，模型生成的彩色图像会被保存到 `record/` 文件夹，以便进行效果对比。
+- **功能**：构建完整的 U-Net 模型，用于灰度图像上色。
+- **编码器**：逐步降低特征图尺寸，提取高层次特征。
+- **解码器**：逐步恢复特征图尺寸，并使用跳跃连接融合编码器的信息。
+- **输出**：生成的彩色图像，尺寸与输入灰度图像相同。
 
-4. **模型保存与恢复**: 在训练过程中，模型的权重和参数会被保存到 `checkpoints/` 文件夹中，可以随时加载这些检查点继续训练或用于测试。
+### 2. 数据集加载
 
----
+#### 2.1 自定义数据集类（ColorizationDataset）
 
-## 神经网络介绍
+```python
+class ColorizationDataset(Dataset):
+    """用于灰度图像上色的自定义数据集"""
+    def __init__(self, color_dir, gray_dir, transform=None):
+        self.color_dir = color_dir
+        self.gray_dir = gray_dir
+        self.transform = transform
+        # 获取彩色和灰度图像的文件列表
+        self.color_images = sorted(os.listdir(color_dir))
+        self.gray_images = sorted(os.listdir(gray_dir))
+        # 确保彩色和灰度图像数量相同
+        assert len(self.color_images) == len(self.gray_images), "彩色和灰度图像数量不匹配"
+    def __len__(self):
+        return len(self.color_images)
+    def __getitem__(self, idx):
+        # 获取图像路径
+        color_img_path = os.path.join(self.color_dir, self.color_images[idx])
+        gray_img_path = os.path.join(self.gray_dir, self.gray_images[idx])
+        # 读取图像
+        color_image = Image.open(color_img_path).convert("RGB")
+        gray_image = Image.open(gray_img_path).convert("L")
+        # 应用变换
+        if self.transform:
+            color_image = self.transform(color_image)
+            gray_image = self.transform(gray_image)
+        return gray_image, color_image
+```
 
-该项目中使用的模型是一个基于 U-Net 架构的卷积神经网络，主要由编码器和解码器组成，适合处理图像生成任务（如图像上色、分割等）。网络的主要结构如下：
+- **功能**：加载灰度图像和对应的彩色图像，供模型训练使用。
+- **输入**：
+    - `color_dir`：彩色图像的目录路径。
+    - `gray_dir`：灰度图像的目录路径。
+    - `transform`：图像预处理变换。
+- **输出**：预处理后的灰度图像和彩色图像张量。
 
-1. **编码器**（下采样路径）：
-    - 使用卷积层（`Conv2d`）和池化层（`MaxPool2d`）逐步缩小输入图像的空间维度，提取不同尺度的特征。
-    - 每个卷积层之后使用批量归一化（`BatchNorm2d`）和激活函数（`ReLU`），以加快训练速度并引入非线性。
+### 3. 数据预处理与加载
 
-2. **跳跃连接**：
-    - 在 U-Net 结构中，每一层编码器的输出都会传递到对应层的解码器部分，通过跳跃连接将细节信息保留下来，以帮助解码器恢复图像的精细特征。
+```python
+# 图像尺寸
+IMAGE_SIZE = 160
 
-3. **解码器**（上采样路径）：
-    - 解码器使用反卷积（`ConvTranspose2d`）或上采样操作将特征图恢复到原始图像的尺寸。
-    - 每个反卷积层之后同样使用批量归一化和激活函数，确保生成的特征图经过多次上采样后，依然保持细节和准确性。
+# 定义变换
+transform = transforms.Compose([
+    transforms.Resize((IMAGE_SIZE, IMAGE_SIZE)),
+    transforms.ToTensor(),  # 转为张量，归一化到 [0, 1]
+])
 
-4. **最终输出**：
-    - 网络的最后一层是一个 1×1 的卷积层，将解码器的输出通道数调整到 3（对应 RGB 彩色图像的 3 个通道）。
-    - 最后的输出经过 `Sigmoid` 激活函数，将每个像素的值归一化到 [0, 1] 之间，适合作为图像的像素值。
+# 数据集路径
+color_dir = 'path_to_color_images'
+gray_dir = 'path_to_gray_images'
 
+# 创建数据集和数据加载器
+dataset = ColorizationDataset(color_dir, gray_dir, transform=transform)
+batch_size = 16
+dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+```
+
+- **功能**：定义图像预处理方式，创建数据集和数据加载器。
+- **变换**：调整图像尺寸，转换为张量。
+- **数据加载器**：批量加载数据，支持随机打乱。
+
+### 4. 模型训练
+
+#### 4.1 定义模型、损失函数和优化器
+
+```python
+# 实例化模型并移动到设备
+model = ColorizationUNet().to(device)
+
+# 定义损失函数
+criterion = nn.MSELoss()
+
+# 定义优化器
+optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
+```
+
+- **损失函数**：使用均方误差损失（MSELoss）衡量生成图像与真实彩色图像的差异。
+- **优化器**：使用 Adam 优化器进行参数更新。
+
+#### 4.2 训练循环
+
+```python
+num_epochs = 50  # 训练轮数
+
+for epoch in range(num_epochs):
+    model.train()
+    running_loss = 0.0
+    for gray_images, color_images in dataloader:
+        # 将数据移动到设备
+        gray_images = gray_images.to(device)
+        color_images = color_images.to(device)
+
+        # 前向传播
+        outputs = model(gray_images)
+
+        # 计算损失
+        loss = criterion(outputs, color_images)
+
+        # 反向传播和优化
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+        # 累加损失
+        running_loss += loss.item()
+
+    # 计算平均损失
+    epoch_loss = running_loss / len(dataloader)
+    print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {epoch_loss:.4f}")
+
+    # 保存模型和可视化结果
+    if (epoch + 1) % 1 == 0:
+        # 保存模型
+        torch.save(model.state_dict(), f'./checkpoints/colorization_epoch_{epoch+1}.pth')
+
+        # 可视化结果
+        model.eval()
+        with torch.no_grad():
+            sample_gray, _ = next(iter(dataloader))
+            sample_gray = sample_gray.to(device)
+            output_color = model(sample_gray)
+            # 转为 CPU 并转换为 numpy 数组
+            sample_gray = sample_gray.cpu().numpy()
+            output_color = output_color.cpu().numpy()
+
+            # 保存结果到 'record' 文件夹
+            for i in range(4):
+                # 保存灰度图像
+                gray_image = sample_gray[i, 0]
+                plt.imsave(f'record/epoch_{epoch+1}_sample_{i+1}_gray.png', gray_image, cmap='gray')
+
+                # 保存生成的彩色图像
+                output_img = np.transpose(output_color[i], (1, 2, 0))
+                plt.imsave(f'record/epoch_{epoch+1}_sample_{i+1}_color.png', output_img)
+```
+
+- **训练步骤**：
+    - 模型设为训练模式。
+    - 遍历数据加载器，获取灰度图像和彩色图像。
+    - 前向传播，计算模型输出。
+    - 计算损失并反向传播。
+    - 更新模型参数。
+- **模型保存和结果可视化**：
+    - 每个 epoch 结束后，保存模型参数。
+    - 选取部分样本进行推理，并保存灰度图像和生成的彩色图像。
+
+## 运行示例
+
+### 1. 准备数据集
+
+- **彩色图像目录**：将彩色图像放在指定的文件夹中，例如 `path_to_color_images`。
+- **灰度图像目录**：将对应的灰度图像放在指定的文件夹中，例如 `path_to_gray_images`。
+- 确保彩色图像和灰度图像的文件名一一对应，数量相同。
+
+### 2. 运行训练代码
+
+- 在配置好环境和数据集后，运行训练脚本。
+- 训练过程会输出每个 epoch 的损失值，并在指定的文件夹中保存模型和可视化结果。
+
+### 3. 查看结果
+
+- 在训练过程中，生成的彩色图像和对应的灰度图像会保存在 `record` 文件夹中。
+- 可以使用图像查看器打开这些图片，观察上色效果。
+
+## 输出结果说明
+
+- **损失值（Loss）**：每个 epoch 输出一次，表示模型在当前轮次的平均损失。损失值越低，说明模型性能越好。
+
+  ```
+  Epoch [1/50], Loss: 0.0648
+  Epoch [2/50], Loss: 0.0487
+  ...
+  Epoch [50/50], Loss: 0.0018
+  ```
+
+- **生成的图像**：
+    - **灰度图像**：命名为 `epoch_{epoch_number}_sample_{sample_number}_gray.png`。
+    - **生成的彩色图像**：命名为 `epoch_{epoch_number}_sample_{sample_number}_color.png`。
+    - 通过对比灰度图像和生成的彩色图像，可以直观地评估模型的上色效果。
+
+## 注意事项
+
+- **数据集质量**：数据集的质量和多样性会直接影响模型的上色效果，建议使用高质量、丰富多样的图像进行训练。
+- **训练时长**：根据硬件性能和数据集大小，训练时间可能较长，可以调整 `num_epochs` 或使用更高效的硬件加速训练。
+- **结果评估**：可以根据实际需求，调整模型结构和超参数，以获得更好的上色效果。
