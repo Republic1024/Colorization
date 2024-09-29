@@ -10,8 +10,6 @@
 ![115.jpg](output%2F115.jpg)
 ![116.jpg](output%2F116.jpg)
 ![117.jpg](output%2F117.jpg)
-![118.jpg](output%2F118.jpg)
-![119.jpg](output%2F119.jpg)
 ![120.jpg](output%2F120.jpg)
 ## 环境要求
 
