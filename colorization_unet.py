@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 
+
 class ConvBlock(nn.Module):
     """卷积块：Conv2d -> BatchNorm2d -> ReLU"""
 
@@ -113,3 +114,6 @@ class ColorizationUNet(nn.Module):
 if __name__ == "__main__":
     model = ColorizationUNet()
     # 创建一个示例灰度图像，尺寸为(1, 1, 160, 160)
+    input_image = torch.randn(1, 1, 1024, 512)
+    output_image = model(input_image)
+    print(output_image.shape)  # 应输出 (1, 3, 500, 1000)
